@@ -1,0 +1,71 @@
+.root-pane {
+    -fx-background-color: linear-gradient(to bottom right, #090d1b, #151b3e 58%, #25103c);
+    -fx-font-family: "Segoe UI";
+}
+.label { -fx-text-fill: #e9edff; }
+.title { -fx-font-size: 30px; -fx-font-weight: bold; }
+.subtitle { -fx-text-fill: #9ca9d7; -fx-font-size: 14px; }
+.card {
+    -fx-background-color: rgba(14, 20, 45, 0.94);
+    -fx-background-radius: 18;
+    -fx-border-color: rgba(134, 147, 208, 0.22);
+    -fx-border-radius: 18;
+    -fx-padding: 24;
+}
+.text-field {
+    -fx-background-color: #0c1430;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #68749d;
+    -fx-background-radius: 9;
+    -fx-border-color: #27365f;
+    -fx-border-radius: 9;
+    -fx-padding: 10 12;
+}
+.button {
+    -fx-background-color: #182343;
+    -fx-text-fill: #eef1ff;
+    -fx-background-radius: 9;
+    -fx-padding: 10 15;
+    -fx-cursor: hand;
+}
+.button:hover { -fx-background-color: #22325c; }
+.primary {
+    -fx-background-color: linear-gradient(to right, #7557ff, #3e89ff);
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+    -fx-padding: 14;
+}
+.primary:hover { -fx-opacity: 0.9; }
+.check-box { -fx-text-fill: #c7d0f3; }
+.check-box .box { -fx-background-color: #0c1430; -fx-border-color: #364775; -fx-border-radius: 4; }
+.check-box:selected .mark { -fx-background-color: white; }
+.check-box:selected .box { -fx-background-color: #6c5cff; }
+.separator .line { -fx-border-color: rgba(150, 160, 205, 0.18); }
+.statistics { -fx-text-fill: #aebcff; -fx-font-weight: bold; }
+.hint { -fx-text-fill: #8491bd; -fx-font-size: 12px; }
+.progress-indicator { -fx-progress-color: #775eff; }
+.secondary-primary {
+    -fx-background-color: #273763;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 14;
+}
+.report-area {
+    -fx-control-inner-background: #091127;
+    -fx-text-fill: #dce4ff;
+    -fx-highlight-fill: #6957db;
+    -fx-highlight-text-fill: white;
+    -fx-font-family: "Consolas";
+    -fx-font-size: 12px;
+    -fx-border-color: #27365f;
+    -fx-border-radius: 9;
+    -fx-background-radius: 9;
+}
+.publish {
+    -fx-background-color: linear-gradient(to right, #7c3aed, #a855f7);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 12 16 12 16;
+    -fx-background-radius: 9;
+}
+.publish:hover { -fx-opacity: 0.9; }
