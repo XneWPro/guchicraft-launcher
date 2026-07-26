@@ -1,3 +1,0 @@
-package ru.guchicraft.common;
-import org.junit.jupiter.api.Test;import ru.guchicraft.common.hash.Hashing;import ru.guchicraft.common.manifest.ClientManifest;import java.nio.file.Files;import static org.junit.jupiter.api.Assertions.*;
-class CommonTest{@Test void sha256Works()throws Exception{var p=Files.createTempFile("hash","txt");Files.writeString(p,"abc");assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",Hashing.sha256(p));}@Test void memoryIsNormalized(){var m=new ClientManifest.LaunchConfiguration(-1,1,1);assertEquals(2048,m.minimumMemoryMb());assertEquals(2048,m.defaultMemoryMb());assertEquals(2048,m.maximumMemoryMb());}}
