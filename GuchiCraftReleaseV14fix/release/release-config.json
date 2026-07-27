@@ -1,0 +1,8 @@
+{
+  "applicationName": "GuchicraftLauncher",
+  "displayName": "ГУЧИКРАФТ Launcher",
+  "vendor": "ГУЧИКРАФТ",
+  "description": "Лаунчер сервера ГУЧИКРАФТ",
+  "githubRepository": "XneWPro/guchicraft-launcher-files",
+  "updateManifestPath": "launcher/launcher-update.json"
+}
