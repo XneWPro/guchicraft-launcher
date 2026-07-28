@@ -1,11 +1,11 @@
-GUCHICRAFT Launcher 1.0.9
+GUCHICRAFT Launcher 1.0.15
 
 Portable:
-File: GuchicraftLauncher-1.0.9-portable.zip
-Size: 148773523
-SHA-256: c82565cf4b39eb5ea771e13fb54ba60f73052701ed8d49d53bc51ef295a2f60c
+File: GuchicraftLauncher-1.0.15-portable.zip
+Size: 148903592
+SHA-256: 3c0553b89bf954760f2d9aa1b226f8bb330cb40bf93e02a071f945c02979e5fc
 
 Update:
-File: GuchicraftLauncher-1.0.9-update.zip
-Size: 10709715
-SHA-256: 7f2a923d811994de31862656c40b0003e90140f9dce23c260517e106c175cc2a
+File: GuchicraftLauncher-1.0.15-update.zip
+Size: 10838822
+SHA-256: 6f9a8e6a05cf3d6864d6add7f19f28f61898c04fd9e4818f16e13e51862c3e2e

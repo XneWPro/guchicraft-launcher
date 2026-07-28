@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+    <dontWrapJar>true</dontWrapJar>
+    <headerType>gui</headerType>
+
+    <outfile>D:\GuchiCraftReleaseV14fix\release\portable-output\GuchicraftLauncher-1.0.15-portable\GuchicraftLauncher.exe</outfile>
+
+    <icon>D:\GuchiCraftReleaseV14fix\tools\launch4j\GuchicraftLauncher.ico</icon>
+
+    <jar></jar>
+
+    <errTitle>Р“РЈР§РРљР РђР¤Рў Launcher</errTitle>
+    <chdir>.</chdir>
+    <priority>normal</priority>
+    <stayAlive>false</stayAlive>
+    <restartOnCrash>false</restartOnCrash>
+
+    <classPath>
+        <mainClass>ru.ezcraft.launcher.LauncherBootstrap</mainClass>
+        <cp>app/*</cp>
+    </classPath>
+
+    <jre>
+        <path>runtime</path>
+        <requiresJdk>false</requiresJdk>
+        <requires64Bit>true</requires64Bit>
+        <minVersion>21</minVersion>
+
+        <opt>--module-path=%EXEDIR%\javafx</opt>
+        <opt>--add-modules=javafx.controls</opt>
+        <opt>-Dfile.encoding=UTF-8</opt>
+        <opt>-Dguchicraft.launcher.version=1.0.15</opt>
+        <opt>-Dguchicraft.launcher.root="%EXEDIR%"</opt>
+        <opt>-Dguchicraft.updater.jar="%EXEDIR%\updater\guchicraft-updater.jar"</opt>
+    </jre>
+
+    <versionInfo>
+        <fileVersion>1.0.15.0</fileVersion>
+        <txtFileVersion>1.0.15</txtFileVersion>
+        <fileDescription>Р“РЈР§РРљР РђР¤Рў Launcher</fileDescription>
+        <copyright>Р“РЈР§РРљР РђР¤Рў</copyright>
+        <productVersion>1.0.15.0</productVersion>
+        <txtProductVersion>1.0.15</txtProductVersion>
+        <productName>Р“РЈР§РРљР РђР¤Рў Launcher</productName>
+        <companyName>Р“РЈР§РРљР РђР¤Рў</companyName>
+        <internalName>GuchicraftLauncher</internalName>
+        <originalFilename>GuchicraftLauncher.exe</originalFilename>
+        <language>RUSSIAN</language>
+    </versionInfo>
+
+    <messages>
+        <startupErr>РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РїСѓСЃС‚РёС‚СЊ Р“РЈР§РРљР РђР¤Рў Launcher.</startupErr>
+        <jreNotFoundErr>Р’СЃС‚СЂРѕРµРЅРЅР°СЏ Java РЅРµ РЅР°Р№РґРµРЅР°. Р Р°СЃРїР°РєСѓР№С‚Рµ Р°СЂС…РёРІ РїРѕР»РЅРѕСЃС‚СЊСЋ.</jreNotFoundErr>
+        <jreVersionErr>Р”Р»СЏ Р·Р°РїСѓСЃРєР° С‚СЂРµР±СѓРµС‚СЃСЏ Java 21 РёР»Рё РЅРѕРІРµРµ.</jreVersionErr>
+        <launcherErr>РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РїСѓСЃС‚РёС‚СЊ Java-РїСЂРёР»РѕР¶РµРЅРёРµ.</launcherErr>
+    </messages>
+</launch4jConfig>

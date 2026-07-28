@@ -147,8 +147,29 @@ public final class LauncherApplication extends Application {
         stage.setScene(scene);
         stage.show();
 
-        loadRemoteConfiguration(memorySlider, memoryValue, statusLabel);
-        checkLauncherUpdate(updateButton, statusLabel);
+        Path launcherExe = resolvePortableLauncherExecutable();
+
+        if (launcherExe != null) {
+            Thread shortcutThread = new Thread(
+                    () -> DesktopShortcutService
+                            .createShortcutIfMissing(launcherExe),
+                    "desktop-shortcut-creator"
+            );
+
+            shortcutThread.setDaemon(true);
+            shortcutThread.start();
+        }
+
+        loadRemoteConfiguration(
+                memorySlider,
+                memoryValue,
+                statusLabel
+        );
+
+        checkLauncherUpdate(
+                updateButton,
+                statusLabel
+        );
     }
 
     private HBox createHeader() {
@@ -392,6 +413,7 @@ public final class LauncherApplication extends Application {
                         int exitCode = gameProcess.waitFor();
                         Platform.runLater(() -> {
                             if (hideAfterStart.isSelected()) primaryStage.show();
+
                             progressBar.setProgress(0);
                             statusLabel.setText(exitCode == 0
                                     ? "Игра завершена"
@@ -478,6 +500,88 @@ public final class LauncherApplication extends Application {
     private String safeBuildVersion(String version) {
         return version == null || version.isBlank() ? "без номера" : version;
     }
+
+    private Path resolvePortableLauncherExecutable() {
+        String configuredRoot = System.getProperty(
+                "guchicraft.launcher.root",
+                ""
+        ).trim();
+
+        configuredRoot = removeSurroundingQuotes(
+                configuredRoot
+        );
+
+        if (!configuredRoot.isBlank()) {
+            Path configuredExe = Path.of(configuredRoot)
+                    .toAbsolutePath()
+                    .normalize()
+                    .resolve("GuchicraftLauncher.exe");
+
+            if (Files.isRegularFile(configuredExe)) {
+                return configuredExe;
+            }
+        }
+
+        /*
+         * Запасной вариант: текущая рабочая папка.
+         */
+        Path currentDirectoryExe = Path.of("")
+                .toAbsolutePath()
+                .normalize()
+                .resolve("GuchicraftLauncher.exe");
+
+        if (Files.isRegularFile(currentDirectoryExe)) {
+            return currentDirectoryExe;
+        }
+
+        /*
+         * В portable-сборке java.home обычно указывает на:
+         *
+         * portableRoot\runtime
+         */
+        Path javaHome = Path.of(
+                        System.getProperty("java.home")
+                )
+                .toAbsolutePath()
+                .normalize();
+
+        Path portableRoot = javaHome.getParent();
+
+        if (portableRoot != null) {
+            Path javaHomeExe = portableRoot.resolve(
+                    "GuchicraftLauncher.exe"
+            );
+
+            if (Files.isRegularFile(javaHomeExe)) {
+                return javaHomeExe;
+            }
+        }
+
+        /*
+         * При запуске из IntelliJ EXE отсутствует.
+         * Это нормальная ситуация.
+         */
+        return null;
+    }
+
+    private String removeSurroundingQuotes(
+            String value
+    ) {
+        String result = value == null
+                ? ""
+                : value.trim();
+
+        while (result.length() >= 2
+                && result.startsWith("\"")
+                && result.endsWith("\"")) {
+            result = result
+                    .substring(1, result.length() - 1)
+                    .trim();
+        }
+
+        return result;
+    }
+
 
     private Path resolveLauncherRoot() {
         String appData = System.getenv("APPDATA");

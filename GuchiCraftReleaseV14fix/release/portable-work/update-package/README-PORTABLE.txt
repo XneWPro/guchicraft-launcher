@@ -1,4 +1,4 @@
-GUCHICRAFT Launcher Portable 1.0.9
+GUCHICRAFT Launcher Portable 1.0.15
 
 1. Start GuchicraftLauncher.bat.
 2. If nothing opens, start GuchicraftLauncher-debug.bat.
@@ -6,4 +6,4 @@ GUCHICRAFT Launcher Portable 1.0.9
 4. IntelliJ, Maven and separately installed Java are not required.
 5. Launcher updates are installed automatically through the included Updater.
 
-Version: 1.0.9
+Version: 1.0.15

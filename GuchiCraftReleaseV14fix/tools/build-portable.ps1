@@ -1,11 +1,12 @@
 [CmdletBinding()]
 param(
-    [string]$Version,
-    [string]$Changelog,
-    [string]$DownloadUrl,
-    [string]$MavenPath,
-    [string]$JavaHome,
-    [string]$OutputDirectory
+          [string]$Version,
+          [string]$Changelog,
+          [string]$DownloadUrl,
+          [string]$MavenPath,
+          [string]$JavaHome,
+          [string]$Launch4jPath,
+          [string]$OutputDirectory
 )
 
 [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
@@ -189,6 +190,43 @@ function Find-Jdk([string]$Configured) {
     throw "JDK 21+ was not found. Pass -JavaHome 'C:\path\jdk-21'."
 }
 
+function Find-Launch4j([string]$Configured) {
+    $candidates = @()
+
+    if (-not [string]::IsNullOrWhiteSpace($Configured)) {
+        $candidates += $Configured
+    }
+
+    $candidates += @(
+        'D:\Launch4j\launch4jc.exe',
+        'D:\Launch4j\launch4j\launch4jc.exe',
+        "$env:ProgramFiles\Launch4j\launch4jc.exe",
+        "$env:LOCALAPPDATA\Launch4j\launch4jc.exe"
+    )
+
+    foreach ($candidate in $candidates) {
+        if ($candidate -and (Test-Path $candidate)) {
+            return (Resolve-Path $candidate).Path
+        }
+    }
+
+    $command = Get-Command launch4jc.exe -ErrorAction SilentlyContinue
+
+    if ($command) {
+        return $command.Source
+    }
+
+    throw @"
+Launch4j was not found.
+
+Expected file:
+D:\Launch4j\launch4jc.exe
+
+Or pass:
+-Launch4jPath 'D:\path\launch4jc.exe'
+"@
+}
+
 function Invoke-Checked(
     [string]$File,
     [string[]]$Arguments
@@ -238,9 +276,11 @@ function Copy-UpdateItem(
 
 $Maven = Find-Maven $MavenPath
 $Jdk = Find-Jdk $JavaHome
+$Launch4j = Find-Launch4j $Launch4jPath
 
-Write-Host "Maven: $Maven"
-Write-Host "JDK:   $Jdk"
+Write-Host "Maven:   $Maven"
+Write-Host "JDK:     $Jdk"
+Write-Host "Launch4j: $Launch4j"
 Write-Host "Version: $Version"
 Write-Host "Update URL: $DownloadUrl"
 
@@ -480,7 +520,109 @@ Set-Content `
 # ------------------------------------------------------------
 # VERSION И README
 # ------------------------------------------------------------
+# ------------------------------------------------------------
+# LAUNCH4J EXE
+# ------------------------------------------------------------
 
+Write-Step 'Creating GuchicraftLauncher.exe with Launch4j'
+
+$VersionParts = $Version.Split('.')
+
+$ExeVersion = '{0}.{1}.{2}.0' -f `
+    $VersionParts[0], `
+    $VersionParts[1], `
+    $VersionParts[2]
+
+$Launch4jConfigPath = Join-Path $Work 'launch4j-config.xml'
+$LauncherExe = Join-Path $PortableRoot 'GuchicraftLauncher.exe'
+
+$LauncherIcon = Join-Path `
+    $Root `
+    'tools\launch4j\GuchicraftLauncher.ico'
+
+    if (-not (Test-Path $LauncherIcon)) {
+        throw "Launcher icon not found: $LauncherIcon"
+    }
+
+$Launch4jConfig = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+    <dontWrapJar>true</dontWrapJar>
+    <headerType>gui</headerType>
+
+    <outfile>$LauncherExe</outfile>
+
+    <icon>$LauncherIcon</icon>
+
+    <jar></jar>
+
+    <errTitle>ГУЧИКРАФТ Launcher</errTitle>
+    <chdir>.</chdir>
+    <priority>normal</priority>
+    <stayAlive>false</stayAlive>
+    <restartOnCrash>false</restartOnCrash>
+
+    <classPath>
+        <mainClass>ru.ezcraft.launcher.LauncherBootstrap</mainClass>
+        <cp>app/*</cp>
+    </classPath>
+
+    <jre>
+        <path>runtime</path>
+        <requiresJdk>false</requiresJdk>
+        <requires64Bit>true</requires64Bit>
+        <minVersion>21</minVersion>
+
+        <opt>--module-path=%EXEDIR%\javafx</opt>
+        <opt>--add-modules=javafx.controls</opt>
+        <opt>-Dfile.encoding=UTF-8</opt>
+        <opt>-Dguchicraft.launcher.version=$Version</opt>
+        <opt>-Dguchicraft.launcher.root="%EXEDIR%"</opt>
+        <opt>-Dguchicraft.updater.jar="%EXEDIR%\updater\guchicraft-updater.jar"</opt>
+    </jre>
+
+    <versionInfo>
+        <fileVersion>$ExeVersion</fileVersion>
+        <txtFileVersion>$Version</txtFileVersion>
+        <fileDescription>ГУЧИКРАФТ Launcher</fileDescription>
+        <copyright>ГУЧИКРАФТ</copyright>
+        <productVersion>$ExeVersion</productVersion>
+        <txtProductVersion>$Version</txtProductVersion>
+        <productName>ГУЧИКРАФТ Launcher</productName>
+        <companyName>ГУЧИКРАФТ</companyName>
+        <internalName>GuchicraftLauncher</internalName>
+        <originalFilename>GuchicraftLauncher.exe</originalFilename>
+        <language>RUSSIAN</language>
+    </versionInfo>
+
+    <messages>
+        <startupErr>Не удалось запустить ГУЧИКРАФТ Launcher.</startupErr>
+        <jreNotFoundErr>Встроенная Java не найдена. Распакуйте архив полностью.</jreNotFoundErr>
+        <jreVersionErr>Для запуска требуется Java 21 или новее.</jreVersionErr>
+        <launcherErr>Не удалось запустить Java-приложение.</launcherErr>
+    </messages>
+</launch4jConfig>
+"@
+
+Write-Utf8WithoutBom `
+    $Launch4jConfigPath `
+    $Launch4jConfig
+
+Push-Location $PortableRoot
+
+try {
+    Invoke-Checked `
+        $Launch4j `
+        @($Launch4jConfigPath)
+} finally {
+    Pop-Location
+}
+
+if (-not (Test-Path $LauncherExe)) {
+    throw "Launch4j did not create EXE: $LauncherExe"
+}
+
+Write-Host "EXE created: $LauncherExe" -ForegroundColor Green
 Set-Content `
     (Join-Path $PortableRoot 'version.txt') `
     -Value $Version `
@@ -519,10 +661,12 @@ Compress-Archive `
 
 Write-Step 'Preparing update package'
 
-Copy-UpdateItem 'GuchicraftLauncher.vbs'
+
 Copy-UpdateItem 'app'
 Copy-UpdateItem 'javafx'
 Copy-UpdateItem 'updater'
+Copy-UpdateItem 'GuchicraftLauncher.exe'
+Copy-UpdateItem 'GuchicraftLauncher.vbs'
 Copy-UpdateItem 'GuchicraftLauncher.bat'
 Copy-UpdateItem 'GuchicraftLauncher-debug.bat'
 Copy-UpdateItem 'version.txt'
@@ -608,6 +752,7 @@ Write-Utf8WithoutBom `
 Write-Step 'Validating generated release'
 
 $RequiredPortableFiles = @(
+    'GuchicraftLauncher.exe',
     'GuchicraftLauncher.vbs',
     'GuchicraftLauncher.bat',
     'GuchicraftLauncher-debug.bat',
@@ -627,6 +772,7 @@ foreach ($relativePath in $RequiredPortableFiles) {
 }
 
 $RequiredUpdateFiles = @(
+    'GuchicraftLauncher.exe',
     'GuchicraftLauncher.vbs',
     'GuchicraftLauncher.bat',
     'GuchicraftLauncher-debug.bat',

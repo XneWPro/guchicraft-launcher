@@ -10,6 +10,7 @@ ru\ezcraft\launcher\service\UpdateService.class
 ru\ezcraft\launcher\LauncherApplication$3.class
 ru\ezcraft\launcher\service\RuntimeManager$RuntimePackage.class
 ru\ezcraft\launcher\util\Json.class
+ru\ezcraft\launcher\DesktopShortcutService.class
 ru\ezcraft\launcher\service\RuntimeManager$CountingInputStream.class
 ru\ezcraft\launcher\update\LauncherUpdateService$UpdateNotConfiguredException.class
 ru\ezcraft\launcher\LauncherApplication.class

@@ -320,28 +320,151 @@ public final class MinecraftInstallationService {
         downloadVerified(url, output, sha1);
     }
 
-    private void downloadVerified(String url, Path output, String sha1) throws Exception {
-        if (isValidSha1(output, sha1)) return;
+    private void downloadVerified(
+            String url,
+            Path output,
+            String sha1
+    ) throws Exception {
+        if (isValidSha1(output, sha1)) {
+            return;
+        }
+
         Files.createDirectories(output.getParent());
-        Path temporary = output.resolveSibling(output.getFileName() + ".part");
-        Files.deleteIfExists(temporary);
-        HttpResponse<Path> response = http.send(
-                HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofMinutes(10)).build(),
-                HttpResponse.BodyHandlers.ofFile(temporary)
+
+        Path temporary = output.resolveSibling(
+                output.getFileName() + ".part"
         );
-        if (response.statusCode() / 100 != 2) {
+
+        Exception lastFailure = null;
+
+        for (int attempt = 1; attempt <= 3; attempt++) {
             Files.deleteIfExists(temporary);
-            throw new IllegalStateException("HTTP " + response.statusCode() + " при загрузке " + url);
+
+            try {
+                HttpRequest request = HttpRequest.newBuilder(
+                                URI.create(url)
+                        )
+                        .timeout(Duration.ofMinutes(10))
+                        .header("User-Agent", "Guchicraft-Launcher")
+                        .header("Cache-Control", "no-cache")
+                        .GET()
+                        .build();
+
+                HttpResponse<InputStream> response = http.send(
+                        request,
+                        HttpResponse.BodyHandlers.ofInputStream()
+                );
+
+                if (response.statusCode() / 100 != 2) {
+                    try {
+                        response.body().close();
+                    } catch (IOException ignored) {
+                        // Ничего не делаем.
+                    }
+
+                    throw new IOException(
+                            "HTTP "
+                                    + response.statusCode()
+                                    + " при загрузке "
+                                    + url
+                    );
+                }
+
+                try (
+                        InputStream input = response.body();
+                        var outputStream = Files.newOutputStream(temporary)
+                ) {
+                    byte[] buffer = new byte[128 * 1024];
+                    int read;
+
+                    while ((read = input.read(buffer)) != -1) {
+                        outputStream.write(buffer, 0, read);
+                    }
+                }
+
+                if (!Files.isRegularFile(temporary)) {
+                    throw new IOException(
+                            "Временный файл не был создан: "
+                                    + temporary
+                    );
+                }
+
+                if (sha1 != null
+                        && !sha1.isBlank()
+                        && !Hashing.sha1(temporary)
+                        .equalsIgnoreCase(sha1)) {
+                    throw new SecurityException(
+                            "Контрольная сумма файла не совпала: "
+                                    + output.getFileName()
+                    );
+                }
+
+                try {
+                    Files.move(
+                            temporary,
+                            output,
+                            StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE
+                    );
+                } catch (IOException ignored) {
+                    Files.move(
+                            temporary,
+                            output,
+                            StandardCopyOption.REPLACE_EXISTING
+                    );
+                }
+
+                return;
+            } catch (Exception exception) {
+                lastFailure = exception;
+                Files.deleteIfExists(temporary);
+
+                if (attempt < 3) {
+                    Thread.sleep(1500L * attempt);
+                }
+            }
         }
-        if (!sha1.isBlank() && !Hashing.sha1(temporary).equalsIgnoreCase(sha1)) {
-            Files.deleteIfExists(temporary);
-            throw new SecurityException("Контрольная сумма файла не совпала: " + output.getFileName());
+
+        String reason = readableDownloadFailure(lastFailure);
+
+        throw new IOException(
+                "Не удалось скачать файл после трёх попыток: "
+                        + output.getFileName()
+                        + ". "
+                        + reason,
+                lastFailure
+        );
+    }
+
+    private String readableDownloadFailure(
+            Exception exception
+    ) {
+        if (exception == null) {
+            return "Причина неизвестна.";
         }
-        try {
-            Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-        } catch (IOException ignored) {
-            Files.move(temporary, output, StandardCopyOption.REPLACE_EXISTING);
+
+        Throwable current = exception;
+        String message = null;
+
+        while (current != null) {
+            if (current.getMessage() != null
+                    && !current.getMessage().isBlank()) {
+                message = current.getMessage();
+            }
+
+            current = current.getCause();
         }
+
+        if (message == null || message.isBlank()) {
+            return exception.getClass().getSimpleName();
+        }
+
+        if (message.contains("BUFFER_UNDERFLOW")
+                || message.contains("EOF")) {
+            return "Сервер преждевременно завершил передачу файла.";
+        }
+
+        return message;
     }
 
     private boolean isValidSha1(Path file, String sha1) {
