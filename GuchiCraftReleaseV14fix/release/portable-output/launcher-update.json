@@ -1,9 +1,0 @@
-{
-    "schemaVersion":  1,
-    "version":  "1.0.15",
-    "downloadUrl":  "https://github.com/XneWPro/guchicraft-launcher-files/releases/download/launcher-v1.0.15/GuchicraftLauncher-1.0.15-update.zip",
-    "sha256":  "6f9a8e6a05cf3d6864d6add7f19f28f61898c04fd9e4818f16e13e51862c3e2e",
-    "size":  10838822,
-    "mandatory":  false,
-    "changelog":  "Добавлено автоматическое создание ярлыка на рабочем столе"
-}

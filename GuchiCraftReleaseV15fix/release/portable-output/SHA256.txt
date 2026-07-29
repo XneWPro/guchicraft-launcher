@@ -1,0 +1,11 @@
+GUCHICRAFT Launcher 1.0.16
+
+Portable:
+File: GuchicraftLauncher-1.0.16-portable.zip
+Size: 148902739
+SHA-256: 5404677711b71ad3d310035121c751a829fd315e15a630ad01efe62fa60e44e9
+
+Update:
+File: GuchicraftLauncher-1.0.16-update.zip
+Size: 10838109
+SHA-256: cd0935be9ba3ab1b90794f0f674ced91993ff8344b0070b17596d1757fe76eb1
